@@ -1,0 +1,82 @@
+[
+  {
+    "location_id": 1,
+    "node_id": 10,
+    "name_th": "ทางเข้าหลัก (Main Entrance)",
+    "name_en": "Main Entrance",
+    "category": "public",
+    "floor": 1
+  },
+  {
+    "location_id": 2,
+    "node_id": 45,
+    "name_th": "ห้องสมุดกลาง",
+    "name_en": "Central Library",
+    "category": "academic",
+    "floor": 2
+  },
+  {
+    "location_id": 3,
+    "node_id": 22,
+    "name_th": "สำนักงานทะเบียน",
+    "name_en": "Registration Office",
+    "category": "office",
+    "floor": 1
+  },
+  {
+    "location_id": 4,
+    "node_id": 88,
+    "name_th": "โรงอาหารหลัก",
+    "name_en": "Main Canteen",
+    "category": "food",
+    "floor": 1
+  },
+  {
+    "location_id": 5,
+    "node_id": 12,
+    "name_th": "ร้านกาแฟ Coffee Corner",
+    "name_en": "Coffee Corner",
+    "category": "food",
+    "floor": 1
+  },
+  {
+    "location_id": 6,
+    "node_id": 50,
+    "name_th": "ห้องน้ำชาย (โซน A)",
+    "name_en": "Male Restroom (Zone A)",
+    "category": "facility",
+    "floor": 2
+  },
+  {
+    "location_id": 7,
+    "node_id": 51,
+    "name_th": "ห้องน้ำหญิง (โซน A)",
+    "name_en": "Female Restroom (Zone A)",
+    "category": "facility",
+    "floor": 2
+  },
+  {
+    "location_id": 8,
+    "node_id": 101,
+    "name_th": "ห้องประชุมสัมมนา 1",
+    "name_en": "Conference Room 1",
+    "category": "academic",
+    "floor": 3
+  },
+  {
+    "location_id": 9,
+    "node_id": 202,
+    "name_th": "ห้องปฏิบัติการคอมพิวเตอร์",
+    "name_en": "Computer Laboratory",
+    "category": "academic",
+    "floor": 3
+  },
+  {
+    "location_id": 10,
+    "node_id": 99,
+    "name_th": "ลิฟต์โดยสาร (ฝั่งทิศตะวันออก)",
+    "name_en": "Passenger Elevator (East Wing)",
+    "category": "transport",
+    "floor": 1
+  }
+]

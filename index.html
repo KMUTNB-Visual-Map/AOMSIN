@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Search</title>
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            padding-top: 50px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h2 { text-align: center; color: #333; }
+
+        /* Search Box Styling */
+        .search-wrapper {
+            position: relative;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        input[type="text"]:focus {
+            border-color: #007bff;
+        }
+
+        /* Results Dropdown Styling */
+        #results-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+        }
+
+        .result-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .result-item:hover {
+            background-color: #f0f8ff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>ค้นหาปลายทาง</h2>
+        
+        <div class="search-wrapper">
+            <input type="text" id="search-input" placeholder="พิมพ์ชื่อสถานที่ (เช่น ห้องสมุด)...">
+            <div id="results-list"></div>
+        </div>
+        
+        </div>
+
+    <script>
+        let allLocations = [];
+        const CURRENT_USER_ID = 1;
+        const CURRENT_NODE_ID = 10; 
+
+        // โหลดข้อมูล
+        fetch('location.json')
+            .then(response => response.json())
+            .then(data => {
+                allLocations = data;
+                console.log("Loaded locations:", allLocations);
+            })
+            .catch(error => console.error('Error loading JSON:', error));
+
+        const searchInput = document.getElementById('search-input');
+        const resultsList = document.getElementById('results-list');
+
+        searchInput.addEventListener('keyup', (e) => {
+            const query = e.target.value.toLowerCase();
+            resultsList.innerHTML = ''; 
+
+            if (query.length === 0) {
+                resultsList.style.display = 'none';
+                return;
+            }
+
+            const filtered = allLocations.filter(loc => {
+                const th = loc.name_th ? loc.name_th.toLowerCase() : "";
+                const en = loc.name_en ? loc.name_en.toLowerCase() : "";
+                return th.includes(query) || en.includes(query);
+            });
+
+            if (filtered.length > 0) {
+                resultsList.style.display = 'block';
+                filtered.forEach(loc => {
+                    const div = document.createElement('div');
+                    div.classList.add('result-item');
+                    div.innerHTML = `<strong>${loc.name_th}</strong> <small>${loc.name_en}</small>`;
+                    
+                    div.addEventListener('click', () => {
+                        selectLocation(loc);
+                    });
+                    
+                    resultsList.appendChild(div);
+                });
+            } else {
+                resultsList.style.display = 'none';
+            }
+        });
+
+        function selectLocation(location) {
+            searchInput.value = location.name_th;
+            resultsList.style.display = 'none';
+
+            // สร้าง JSON Object
+            const payload = {
+                "guest_id": CURRENT_USER_ID,
+                "start_node": CURRENT_NODE_ID,
+                "end_node": location.node_id, 
+                "mode": "gps",
+                "location_name": `${location.name_th} (${location.name_en})`
+            };
+
+            // *** ใช้ console.log แทนการแสดงบนหน้าจอ ***
+            console.log("--------------------------------");
+            console.log("✅ User Selected Location:");
+            console.log(payload);
+            console.log("JSON String for Backend:");
+            console.log(JSON.stringify(payload));
+            console.log("--------------------------------");
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.search-wrapper')) {
+                resultsList.style.display = 'none';
+            }
+        });
+    </script>
+
+</body>
+</html>
