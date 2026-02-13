@@ -2,102 +2,218 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Navigation Search</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <style>
+        /* =========================================
+           🎨 จานสี (ปรับตามภาพตัวอย่าง)
+           ========================================= */
+        :root {
+            --bg-color: #21293e;           /* สีพื้นหลังน้ำเงินเข้มตามรูป */
+            --search-bg: #fdfdfd;          /* สี Search Bar ขาวครีม */
+            --text-main: #333d52;          /* สีตัวหนังสือหลัก (เกือบดำ) */
+            --text-placeholder: #7c89a7;   /* สี Placeholder เทาอมฟ้า */
+            --text-sub: #9aa8c0;           /* สีตัวหนังสือรอง */
+            --border-color: #e0e5ed;       /* สีเส้นขอบ */
+            --highlight-color: #e7f3ff;    /* สีไฮไลท์ตอนกด */
+            --accent-color: #347efb;       /* สีน้ำเงินหลักของแอป */
+            --shadow-color: rgba(0, 0, 0, 0.15); /* สีเงา */
+        }
+
+        /* รีเซ็ตค่าพื้นฐาน */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         body {
-            font-family: 'Sarabun', sans-serif;
-            background-color: #f4f4f9;
+            font-family: 'Sarabun', sans-serif; /* ใช้ Sarabun */
+            background-color: var(--bg-color); 
+            color: var(--text-main);
+            margin: 0;
+            padding: 0; /* ลบ padding ออกเพื่อให้ content ชิดขอบบน */
             display: flex;
-            justify-content: center;
-            padding-top: 50px;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh; /* เต็มจอ */
         }
 
         .container {
             width: 100%;
-            max-width: 500px;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 600px;
+            padding: 0 20px; /* เพิ่ม padding ด้านข้างกลับเข้าไป */
         }
 
-        h2 { text-align: center; color: #333; }
+        /* สำหรับ Search Bar และ Filter Button */
+        .header-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 50px; /* เว้นพื้นที่ด้านบน (สถานะแบตเตอรี่, เวลา) */
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 600px;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
 
-        /* Search Box Styling */
         .search-wrapper {
             position: relative;
+            flex-grow: 1; /* ให้ Search bar ขยายเต็มที่ */
+            box-shadow: 0 5px 15px var(--shadow-color); /* เงาเข้มขึ้น */
+            border-radius: 12px;
+            background: var(--search-bg);
+            display: flex; /* ใช้ flex เพื่อจัดไอคอนในช่องค้นหา */
+            align-items: center;
+        }
+
+        .search-wrapper i { /* ไอคอนแว่นขยาย */
+            position: absolute; /* หรือใช้ padding-left เยอะๆ */
+            left: 15px;
+            color: var(--text-placeholder);
+            font-size: 1.1rem;
         }
 
         input[type="text"] {
             width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            box-sizing: border-box;
+            padding: 16px 16px 16px 45px; /* เพิ่ม padding ซ้ายสำหรับไอคอน */
+            font-size: 16px; 
+            border: 1px solid transparent; 
+            border-radius: 12px;
             outline: none;
+            background-color: var(--search-bg);
+            color: var(--text-main);
+            transition: all 0.2s;
+        }
+        
+        input[type="text"]::placeholder {
+            color: var(--text-placeholder); /* สี placeholder ตามรูป */
         }
 
         input[type="text"]:focus {
-            border-color: #007bff;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(52, 126, 251, 0.2); /* เงาสีน้ำเงินจางๆ */
         }
 
-        /* Results Dropdown Styling */
+        .filter-button {
+            margin-left: 15px; /* ระยะห่างจาก search bar */
+            width: 50px; /* ขนาดปุ่ม Filter */
+            height: 50px;
+            border-radius: 12px;
+            background-color: var(--search-bg); /* สีเดียวกับ search bar */
+            box-shadow: 0 5px 15px var(--shadow-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s, box-shadow 0.2s;
+        }
+        .filter-button i {
+            color: var(--accent-color); /* สีไอคอนเป็นสีน้ำเงิน */
+            font-size: 1.2rem;
+        }
+        .filter-button:active {
+            background-color: var(--highlight-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+
+        /* รายการผลลัพธ์ (Dropdown) */
         #results-list {
             position: absolute;
-            top: 100%;
+            top: 100%; 
             left: 0;
             right: 0;
-            background: white;
-            border: 1px solid #ddd;
-            border-top: none;
-            border-radius: 0 0 5px 5px;
-            max-height: 200px;
+            margin-top: 8px;
+            background: var(--search-bg);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px var(--shadow-color);
+            max-height: 50vh;
             overflow-y: auto;
-            z-index: 10;
+            z-index: 100;
             display: none;
+            border: 1px solid var(--border-color);
         }
 
         .result-item {
-            padding: 10px;
+            padding: 16px 20px;
             cursor: pointer;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.1s;
         }
 
-        .result-item:hover {
-            background-color: #f0f8ff;
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-item:active {
+            background-color: var(--highlight-color);
+        }
+        
+        @media (hover: hover) {
+            .result-item:hover {
+                background-color: var(--highlight-color);
+            }
+        }
+
+        .result-item strong {
+            font-size: 16px;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .result-item small {
+            font-size: 14px;
+            color: var(--text-sub);
+        }
+
+        #map-placeholder {
+            flex-grow: 1; /* ทำให้ map placeholder ขยายเต็มพื้นที่ที่เหลือ */
+            width: 100%;
+            background-color: #3f4a66; /* สีพื้นหลังแผนที่จำลอง */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--text-sub);
+            border-radius: 15px; /* ขอบโค้งให้เหมือนแอป */
+            margin: 20px;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h2>ค้นหาปลายทาง</h2>
-        
+    <div class="header-controls">
         <div class="search-wrapper">
-            <input type="text" id="search-input" placeholder="พิมพ์ชื่อสถานที่ (เช่น ห้องสมุด)...">
+            <i class="fa-solid fa-magnifying-glass"></i> <input type="text" id="search-input" placeholder="ค้นหาอาคาร, ห้องเรียน..." autocomplete="off">
             <div id="results-list"></div>
         </div>
-        
-        </div>
+        <div class="filter-button">
+            <i class="fa-solid fa-layer-group"></i> </div>
+    </div>
+
+    <div id="map-placeholder">
+        <p>Your 3D Map View Here</p>
+    </div>
 
     <script>
+        // --- ส่วน Logic JavaScript (เหมือนเดิมเป๊ะ) ---
         let allLocations = [];
         const CURRENT_USER_ID = 1;
         const CURRENT_NODE_ID = 10; 
 
-        // โหลดข้อมูล
         fetch('location.json')
             .then(response => response.json())
-            .then(data => {
-                allLocations = data;
-                console.log("Loaded locations:", allLocations);
-            })
+            .then(data => { allLocations = data; })
             .catch(error => console.error('Error loading JSON:', error));
 
         const searchInput = document.getElementById('search-input');
         const resultsList = document.getElementById('results-list');
+        const filterButton = document.querySelector('.filter-button'); // อ้างอิงปุ่ม Filter
 
         searchInput.addEventListener('keyup', (e) => {
             const query = e.target.value.toLowerCase();
@@ -120,23 +236,26 @@
                     const div = document.createElement('div');
                     div.classList.add('result-item');
                     div.innerHTML = `<strong>${loc.name_th}</strong> <small>${loc.name_en}</small>`;
-                    
-                    div.addEventListener('click', () => {
-                        selectLocation(loc);
-                    });
-                    
+                    div.addEventListener('click', () => selectLocation(loc));
                     resultsList.appendChild(div);
                 });
             } else {
-                resultsList.style.display = 'none';
+                // ถ้าไม่เจอผลลัพธ์ ควรแสดงข้อความ "ไม่พบข้อมูล"
+                const noResultDiv = document.createElement('div');
+                noResultDiv.classList.add('result-item');
+                noResultDiv.textContent = 'ไม่พบข้อมูล';
+                noResultDiv.style.color = 'var(--text-sub)';
+                noResultDiv.style.cursor = 'default';
+                resultsList.appendChild(noResultDiv);
+                resultsList.style.display = 'block';
             }
         });
 
         function selectLocation(location) {
             searchInput.value = location.name_th;
             resultsList.style.display = 'none';
+            searchInput.blur(); 
 
-            // สร้าง JSON Object
             const payload = {
                 "guest_id": CURRENT_USER_ID,
                 "start_node": CURRENT_NODE_ID,
@@ -144,22 +263,23 @@
                 "mode": "gps",
                 "location_name": `${location.name_th} (${location.name_en})`
             };
-
-            // *** ใช้ console.log แทนการแสดงบนหน้าจอ ***
-            console.log("--------------------------------");
-            console.log("✅ User Selected Location:");
-            console.log(payload);
-            console.log("JSON String for Backend:");
+            console.log("🚀 Sending to Backend:", payload);
             console.log(JSON.stringify(payload));
-            console.log("--------------------------------");
         }
 
+        // ซ่อน Dropdown เมื่อแตะพื้นที่อื่น หรือกดปุ่ม Filter
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('.search-wrapper')) {
+            if (!e.target.closest('.search-wrapper') && !e.target.closest('.filter-button')) {
                 resultsList.style.display = 'none';
             }
         });
-    </script>
 
+        // Event สำหรับปุ่ม Filter (ตอนนี้แค่ Log ออกเฉยๆ)
+        filterButton.addEventListener('click', () => {
+            console.log("Filter button clicked!");
+            // ที่นี่คุณสามารถเพิ่ม Logic เพื่อแสดง Filter Modal ได้
+        });
+
+    </script>
 </body>
 </html>
