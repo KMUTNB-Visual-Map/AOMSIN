@@ -1,25 +1,27 @@
-// app.js
-import { fetchLocations, sendNavigationGoal } from './api.js';
+import { fetchLocations, sendNavigationGoal, sendFloorUpdate } from './api.js';
 
-// ตัวแปรเก็บข้อมูล
 let allLocations = [];
+let currentFloor = 1;
+let pendingLocation = null; // ✅ ตัวแปรเก็บสถานที่ที่เลือกรอไว้
 
-// ตัวแปร DOM Elements
 const searchInput = document.getElementById('search-input');
 const resultsList = document.getElementById('results-list');
-const filterButton = document.querySelector('.filter-button');
+const floorButtons = document.querySelectorAll('.floor-btn');
+const alertPopup = document.getElementById('alert-popup');
 
-// 1. เริ่มทำงานเมื่อเปิดเว็บ (Initialize)
+// ✅ ตัวแปร DOM สำหรับ Avatar Modal
+const avatarModalOverlay = document.getElementById('avatar-modal-overlay');
+const avatarCards = document.querySelectorAll('.avatar-card');
+const cancelAvatarBtn = document.getElementById('cancel-avatar-btn');
+
 async function initApp() {
-    console.log("📲 App Initializing...");
     allLocations = await fetchLocations();
-    console.log(`✅ Loaded ${allLocations.length} locations.`);
 }
 
-// 2. ฟังก์ชันค้นหา (Logic การกรองข้อมูล)
+// --- 1. Search Logic ---
 searchInput.addEventListener('keyup', (e) => {
     const query = e.target.value.toLowerCase();
-    resultsList.innerHTML = ''; // ล้างค่าเก่า
+    resultsList.innerHTML = ''; 
 
     if (query.length === 0) {
         resultsList.style.display = 'none';
@@ -28,51 +30,83 @@ searchInput.addEventListener('keyup', (e) => {
 
     const filtered = allLocations.filter(loc => {
         const th = loc.name_th ? loc.name_th.toLowerCase() : "";
-        const en = loc.name_en ? loc.name_en.toLowerCase() : "";
-        return th.includes(query) || en.includes(query);
+        return th.includes(query);
     });
 
-    renderResults(filtered);
-});
-
-// 3. ฟังก์ชันแสดงผล (Render UI)
-function renderResults(items) {
-    if (items.length > 0) {
+    if (filtered.length > 0) {
         resultsList.style.display = 'block';
-        items.forEach(loc => {
+        filtered.forEach(loc => {
             const div = document.createElement('div');
             div.classList.add('result-item');
-            div.innerHTML = `<strong>${loc.name_th}</strong> <small>${loc.name_en}</small>`;
+            div.innerHTML = `<strong>${loc.name_th}</strong> <small>ชั้น ${loc.floor}</small>`;
             
-            // เมื่อคลิกเลือก
-            div.addEventListener('click', () => handleLocationSelect(loc));
+            div.addEventListener('click', () => {
+                searchInput.value = loc.name_th;
+                resultsList.style.display = 'none';
+                
+                // ✅ แทนที่จะส่ง API เลย ให้เก็บข้อมูลไว้และเปิด Popup Avatar
+                pendingLocation = loc;
+                avatarModalOverlay.classList.add('show');
+            });
             
             resultsList.appendChild(div);
         });
-    } else {
-        // กรณีไม่พบข้อมูล
-        resultsList.style.display = 'block';
-        resultsList.innerHTML = `<div class="result-item" style="color:#aaa;">ไม่พบข้อมูล</div>`;
-    }
-}
-
-// 4. ฟังก์ชันเมื่อผู้ใช้เลือกสถานที่
-function handleLocationSelect(location) {
-    // Update UI
-    searchInput.value = location.name_th;
-    resultsList.style.display = 'none';
-    searchInput.blur(); // ซ่อนคีย์บอร์ด
-
-    // เรียกใช้ API เพื่อส่งข้อมูล
-    sendNavigationGoal(location);
-}
-
-// 5. ปิด Dropdown เมื่อคลิกข้างนอก
-document.addEventListener('click', (e) => {
-    if (!e.target.closest('.search-wrapper') && !e.target.closest('.filter-button')) {
-        resultsList.style.display = 'none';
     }
 });
 
-// เริ่มรันโปรแกรม
+// --- 2. Avatar Selection Logic ---
+// เมื่อผู้ใช้กดเลือก Avatar
+avatarCards.forEach(card => {
+    card.addEventListener('click', () => {
+        const selectedAvatarId = card.dataset.avatar;
+        
+        // ปิด Popup
+        avatarModalOverlay.classList.remove('show');
+        
+        // ส่ง API พร้อมสถานที่ที่ทดไว้ + Avatar ที่เลือก
+        if (pendingLocation) {
+            sendNavigationGoal(pendingLocation, selectedAvatarId);
+            pendingLocation = null; // ล้างค่า
+        }
+    });
+});
+
+// เมือกดปุ่มยกเลิกการเลือก Avatar
+cancelAvatarBtn.addEventListener('click', () => {
+    avatarModalOverlay.classList.remove('show');
+    pendingLocation = null;
+    searchInput.value = ''; // ล้างช่องค้นหา
+});
+
+// --- 3. Floor Selection Logic ---
+floorButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const selectedFloor = btn.dataset.floor;
+        if (currentFloor == selectedFloor) return;
+        changeFloor(selectedFloor);
+    });
+});
+
+function changeFloor(floorId) {
+    currentFloor = floorId;
+    floorButtons.forEach(b => b.classList.remove('active'));
+    const targetBtn = document.querySelector(`.floor-btn[data-floor="${floorId}"]`);
+    if(targetBtn) targetBtn.classList.add('active');
+
+    sendFloorUpdate(floorId);
+}
+
+// --- 4. Arrival / Popup Logic ---
+function showArrivalAlert(title, message) {
+    const content = alertPopup.querySelector('.alert-content');
+    content.innerHTML = `<strong>${title}</strong><small>${message}</small>`;
+    alertPopup.classList.add('show');
+    setTimeout(() => { alertPopup.classList.remove('show'); }, 4000);
+}
+
+// ปิด Dropdown เมื่อกดข้างนอก
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.search-wrapper')) resultsList.style.display = 'none';
+});
+
 initApp();
