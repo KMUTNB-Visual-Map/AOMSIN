@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KMUTNB Navigation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="header-controls">
+        <div class="search-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i> 
+            <input type="text" id="search-input" placeholder="ค้นหาสถานที่ในตึก 81..." autocomplete="off">
+            <div id="results-list"></div>
+        </div>
+    </div>
+
+    <div id="map-placeholder">
+        <p>3D Map View Area</p>
+        
+        <div class="floor-controls">
+            <button class="floor-btn" data-floor="6">6</button>
+            <button class="floor-btn" data-floor="5">5</button>
+            <button class="floor-btn" data-floor="4">4</button>
+            <button class="floor-btn" data-floor="3">3</button>
+            <button class="floor-btn" data-floor="2">2</button>
+            <button class="floor-btn active" data-floor="1">1</button>
+        </div>
+    </div>
+
+    <div id="alert-popup" class="alert-popup">
+        <i class="fa-solid fa-elevator"></i>
+        <div class="alert-content">
+            <strong>แจ้งเตือน</strong>
+            <small>...</small>
+        </div>
+    </div>
+
+    <div id="avatar-modal-overlay" class="avatar-modal-overlay">
+            <div class="avatar-modal">
+                <h3>เลือกตัวละครของคุณ</h3>
+                <p>เพื่อใช้ในการเดินนำทางบนแผนที่ 3D</p>
+                <div class="avatar-options">
+                    <div class="avatar-card" data-avatar="1">
+                        <img src="avartar_01.png" alt="นักเรียนหญิง" class="avatar-img">
+                        <span>นักเรียนหญิง</span>
+                    </div>
+                    <div class="avatar-card" data-avatar="2">
+                        <img src="avartar_02.png" alt="นักเรียนชาย" class="avatar-img">
+                        <span>นักเรียนชาย</span>
+                    </div>
+                </div>
+                <button id="cancel-avatar-btn" class="cancel-btn">ยกเลิก</button>
+            </div>
+        </div>
+
+    <script type="module" src="js/app.js"></script>
+
+</body>
+</html>

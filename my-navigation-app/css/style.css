@@ -1,0 +1,318 @@
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600&display=swap');
+
+:root {
+    --bg-color: #21293e;           
+    --search-bg: #fdfdfd;          
+    --text-main: #333d52;
+    --text-placeholder: #7c89a7;
+    --text-sub: #9aa8c0;
+    --border-color: #e0e5ed;
+    --highlight-color: #e7f3ff;
+    --accent-color: #347efb;       
+    --shadow-color: rgba(0, 0, 0, 0.15);
+}
+
+* { 
+    box-sizing: border-box; 
+    -webkit-tap-highlight-color: transparent; 
+}
+
+body {
+    font-family: 'Sarabun', sans-serif;
+    background-color: var(--bg-color); 
+    color: var(--text-main);
+    margin: 0; 
+    padding: 0;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+    height: 100vh; 
+    overflow: hidden; /* ล็อกไม่ให้หน้าเว็บเลื่อน */
+}
+
+/* =========================================
+   1. Header & Search Bar (ส่วนค้นหาด้านบน)
+========================================= */
+.header-controls {
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between;
+    padding-top: 50px; 
+    margin-bottom: 10px;
+    width: 100%; 
+    max-width: 600px; 
+    padding-left: 20px; 
+    padding-right: 20px;
+    z-index: 100;
+}
+
+.search-wrapper {
+    position: relative; 
+    flex-grow: 1;
+    box-shadow: 0 5px 15px var(--shadow-color);
+    border-radius: 12px; 
+    background: var(--search-bg);
+    display: flex; 
+    align-items: center;
+}
+
+.search-wrapper i { 
+    position: absolute; 
+    left: 15px; 
+    color: var(--text-placeholder); 
+    font-size: 1.1rem; 
+}
+
+input[type="text"] {
+    width: 100%; 
+    padding: 16px 16px 16px 45px;
+    font-size: 16px; 
+    border: 1px solid transparent;
+    border-radius: 12px; 
+    outline: none;
+    background-color: var(--search-bg); 
+    color: var(--text-main);
+}
+
+input[type="text"]:focus { 
+    border-color: var(--accent-color); 
+}
+
+#results-list {
+    position: absolute; 
+    top: 100%; 
+    left: 0; 
+    right: 0; 
+    margin-top: 8px;
+    background: var(--search-bg); 
+    border-radius: 12px;
+    box-shadow: 0 8px 24px var(--shadow-color);
+    max-height: 50vh; 
+    overflow-y: auto; 
+    z-index: 200;
+    display: none; 
+    border: 1px solid var(--border-color);
+}
+
+.result-item {
+    padding: 16px 20px; 
+    cursor: pointer; 
+    border-bottom: 1px solid var(--border-color);
+    display: flex; 
+    flex-direction: column;
+}
+
+.result-item:last-child { 
+    border-bottom: none; 
+}
+
+.result-item:hover, .result-item:active { 
+    background-color: var(--highlight-color); 
+}
+
+/* =========================================
+   2. Map Area (พื้นที่แสดง 3D Map)
+========================================= */
+#map-placeholder {
+    flex-grow: 1; 
+    width: 100%; 
+    background-color: #3f4a66;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    color: var(--text-sub); 
+    font-size: 1.5rem; 
+    position: relative;
+}
+
+/* =========================================
+   3. Floor Controls (ปุ่มเลือกชั้น)
+========================================= */
+.floor-controls {
+    position: absolute; 
+    right: 20px; 
+    bottom: 40px;
+    display: flex; 
+    flex-direction: column; 
+    gap: 10px; 
+    z-index: 50;
+}
+
+.floor-btn {
+    width: 45px; 
+    height: 45px; 
+    border-radius: 50%;
+    border: none; 
+    background-color: var(--search-bg);
+    color: var(--text-main); 
+    font-weight: 600; 
+    font-size: 1.1rem;
+    box-shadow: 0 4px 10px var(--shadow-color);
+    cursor: pointer; 
+    transition: all 0.2s;
+}
+
+.floor-btn:active { 
+    transform: scale(0.95); 
+}
+
+.floor-btn.active {
+    background-color: var(--accent-color); 
+    color: white;
+    box-shadow: 0 4px 12px rgba(52, 126, 251, 0.4);
+}
+
+/* =========================================
+   4. Alert Popup (แจ้งเตือนลิฟต์/บันได)
+========================================= */
+.alert-popup {
+    position: absolute; 
+    bottom: 40px; 
+    left: 50%;
+    transform: translateX(-50%) translateY(150px);
+    background-color: #333d52; 
+    color: white;
+    padding: 12px 20px; 
+    border-radius: 30px;
+    display: flex; 
+    align-items: center; 
+    gap: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    z-index: 100; 
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    width: 90%; 
+    max-width: 350px;
+}
+
+.alert-popup.show { 
+    transform: translateX(-50%) translateY(0); 
+    opacity: 1; 
+}
+
+.alert-popup i { 
+    font-size: 1.5rem; 
+    color: #ffcc00; 
+}
+
+.alert-content { 
+    display: flex; 
+    flex-direction: column; 
+}
+
+.alert-content strong { 
+    font-size: 0.95rem; 
+}
+
+.alert-content small { 
+    font-size: 0.8rem; 
+    opacity: 0.8; 
+}
+
+/* =========================================
+   5. Avatar Selection Modal (หน้าต่างเลือกตัวละคร)
+========================================= */
+.avatar-modal-overlay {
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6); 
+    z-index: 1000;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    opacity: 0; 
+    pointer-events: none; 
+    transition: opacity 0.3s ease;
+}
+
+.avatar-modal-overlay.show { 
+    opacity: 1; 
+    pointer-events: auto; 
+}
+
+.avatar-modal {
+    background: var(--search-bg); 
+    padding: 25px; 
+    border-radius: 20px;
+    text-align: center; 
+    width: 90%; 
+    max-width: 350px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    transform: translateY(30px); 
+    transition: transform 0.3s ease;
+}
+
+.avatar-modal-overlay.show .avatar-modal { 
+    transform: translateY(0); 
+}
+
+.avatar-modal h3 { 
+    margin: 0 0 5px 0; 
+    color: var(--text-main); 
+}
+
+.avatar-modal p { 
+    margin: 0 0 20px 0; 
+    color: var(--text-sub); 
+    font-size: 0.9rem; 
+}
+
+.avatar-options {
+    display: flex; 
+    gap: 15px; 
+    justify-content: center; 
+    margin-bottom: 20px;
+}
+
+.avatar-card {
+    flex: 1; 
+    padding: 20px 10px; 
+    border: 2px solid var(--border-color);
+    border-radius: 15px; 
+    cursor: pointer; 
+    transition: all 0.2s;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    gap: 10px;
+}
+
+.avatar-card:hover, .avatar-card:active {
+    border-color: var(--accent-color); 
+    background-color: var(--highlight-color);
+    transform: translateY(-3px);
+}
+
+/* รูปภาพ Avatar ที่เปลี่ยนจากไอคอน */
+.avatar-img {
+    width: 70px;  
+    height: 70px; 
+    object-fit: cover; 
+    border-radius: 50%; /* ทำให้รูปเป็นวงกลม */
+    border: 2px solid var(--border-color);
+    background-color: #f0f0f0; /* สีพื้นหลังเผื่อรูปโปร่งใส */
+}
+
+.avatar-card span { 
+    font-weight: 600; 
+    font-size: 0.9rem; 
+    color: var(--text-main); 
+}
+
+.cancel-btn {
+    background: none; 
+    border: none; 
+    color: #ff4d4f; 
+    font-family: inherit;
+    font-size: 1rem; 
+    font-weight: 500; 
+    cursor: pointer; 
+    padding: 10px 20px;
+}
+
+.cancel-btn:hover { 
+    text-decoration: underline; 
+}
