@@ -11,16 +11,17 @@ export async function fetchLocations() {
 }
 
 // ✅ แก้ไข: เพิ่ม parameter (avatarId) เข้ามา
-export async function sendNavigationGoal(location, avatarId) {
+// ✅ เพิ่ม parameter 'startNode' เข้ามาเป็นตัวที่ 3
+export async function sendNavigationGoal(location, avatarId, startNode) {
     const payload = {
         "guest_id": CONFIG.CURRENT_USER_ID,
-        "start_node": CONFIG.START_NODE_ID,
+        "start_node": parseInt(startNode),   // ใช้ค่าชั้นที่ผู้ใช้เลือก
         "end_node": location.node_id,
         "mode": "gps",
         "location_name": location.name_th,
-        "avatar_id": parseInt(avatarId) // ส่งข้อมูล Avatar ไปให้ Backend/3D
+        "avatar_id": parseInt(avatarId) 
     };
-    console.log("🚀 [API] Sending Goal with Avatar:", JSON.stringify(payload));
+    console.log("🚀 [API] Sending Goal (Start->End):", JSON.stringify(payload));
     return payload;
 }
 

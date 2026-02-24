@@ -2,14 +2,20 @@ import { fetchLocations, sendNavigationGoal, sendFloorUpdate } from './api.js';
 
 let allLocations = [];
 let currentFloor = 1;
-let pendingLocation = null; // ✅ ตัวแปรเก็บสถานที่ที่เลือกรอไว้
+let pendingLocation = null; 
+let pendingStartNode = null; // ✅ ตัวแปรเก็บตำแหน่งลิฟต์ชั้นเริ่มต้น
 
 const searchInput = document.getElementById('search-input');
 const resultsList = document.getElementById('results-list');
 const floorButtons = document.querySelectorAll('.floor-btn');
 const alertPopup = document.getElementById('alert-popup');
 
-// ✅ ตัวแปร DOM สำหรับ Avatar Modal
+// ✅ ตัวแปร DOM สำหรับ Modal เลือกชั้นปัจจุบัน
+const startFloorModalOverlay = document.getElementById('start-floor-modal-overlay');
+const startFloorBtns = document.querySelectorAll('.start-floor-btn');
+const cancelStartFloorBtn = document.getElementById('cancel-start-floor-btn');
+
+// ตัวแปร DOM สำหรับ Avatar Modal
 const avatarModalOverlay = document.getElementById('avatar-modal-overlay');
 const avatarCards = document.querySelectorAll('.avatar-card');
 const cancelAvatarBtn = document.getElementById('cancel-avatar-btn');
@@ -44,9 +50,9 @@ searchInput.addEventListener('keyup', (e) => {
                 searchInput.value = loc.name_th;
                 resultsList.style.display = 'none';
                 
-                // ✅ แทนที่จะส่ง API เลย ให้เก็บข้อมูลไว้และเปิด Popup Avatar
+                // ✅ ขั้นที่ 1: พักข้อมูล แล้วเปิด Popup ให้เลือก "ชั้นเริ่มต้น"
                 pendingLocation = loc;
-                avatarModalOverlay.classList.add('show');
+                startFloorModalOverlay.classList.add('show');
             });
             
             resultsList.appendChild(div);
@@ -54,31 +60,51 @@ searchInput.addEventListener('keyup', (e) => {
     }
 });
 
-// --- 2. Avatar Selection Logic ---
-// เมื่อผู้ใช้กดเลือก Avatar
+// --- 2. Start Floor Selection Logic ---
+startFloorBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const floorSelected = parseInt(btn.dataset.floor);
+        // แปลงเลขชั้นเป็น Node ของลิฟต์ (เช่น ชั้น 1 = 100, ชั้น 6 = 600)
+        pendingStartNode = floorSelected * 100; 
+
+        // ✅ ขั้นที่ 2: ปิด Popup เลือกชั้น แล้วเปิด Popup "Avatar"
+        startFloorModalOverlay.classList.remove('show');
+        avatarModalOverlay.classList.add('show');
+    });
+});
+
+cancelStartFloorBtn.addEventListener('click', () => {
+    startFloorModalOverlay.classList.remove('show');
+    pendingLocation = null;
+    searchInput.value = ''; 
+});
+
+// --- 3. Avatar Selection Logic ---
 avatarCards.forEach(card => {
     card.addEventListener('click', () => {
         const selectedAvatarId = card.dataset.avatar;
         
-        // ปิด Popup
         avatarModalOverlay.classList.remove('show');
         
-        // ส่ง API พร้อมสถานที่ที่ทดไว้ + Avatar ที่เลือก
-        if (pendingLocation) {
-            sendNavigationGoal(pendingLocation, selectedAvatarId);
-            pendingLocation = null; // ล้างค่า
+        // ✅ ขั้นที่ 3: ส่ง API (จุดเริ่มต้น + ปลายทาง + Avatar)
+        if (pendingLocation && pendingStartNode) {
+            sendNavigationGoal(pendingLocation, selectedAvatarId, pendingStartNode);
+            
+            // ล้างค่าหลังจากส่งเสร็จ
+            pendingLocation = null;
+            pendingStartNode = null;
         }
     });
 });
 
-// เมือกดปุ่มยกเลิกการเลือก Avatar
 cancelAvatarBtn.addEventListener('click', () => {
     avatarModalOverlay.classList.remove('show');
     pendingLocation = null;
-    searchInput.value = ''; // ล้างช่องค้นหา
+    pendingStartNode = null;
+    searchInput.value = ''; 
 });
 
-// --- 3. Floor Selection Logic ---
+// --- 4. Floor Selection & Arrival Logic ---
 floorButtons.forEach(btn => {
     btn.addEventListener('click', () => {
         const selectedFloor = btn.dataset.floor;
@@ -96,7 +122,6 @@ function changeFloor(floorId) {
     sendFloorUpdate(floorId);
 }
 
-// --- 4. Arrival / Popup Logic ---
 function showArrivalAlert(title, message) {
     const content = alertPopup.querySelector('.alert-content');
     content.innerHTML = `<strong>${title}</strong><small>${message}</small>`;

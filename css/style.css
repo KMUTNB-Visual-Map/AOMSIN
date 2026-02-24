@@ -316,3 +316,31 @@ input[type="text"]:focus {
 .cancel-btn:hover { 
     text-decoration: underline; 
 }
+
+/* --- Start Floor Selection Modal --- */
+.start-floor-options {
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 10px; 
+    margin-bottom: 20px;
+}
+
+.start-floor-btn {
+    background-color: var(--search-bg);
+    border: 2px solid var(--border-color);
+    color: var(--text-main);
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 12px 0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.start-floor-btn:hover, .start-floor-btn:active {
+    border-color: var(--accent-color);
+    background-color: var(--accent-color);
+    color: white;
+    transform: translateY(-2px);
+}
